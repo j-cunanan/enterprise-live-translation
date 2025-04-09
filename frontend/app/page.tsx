@@ -5,9 +5,19 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Globe, Mic, StopCircle, AlertCircle, Loader2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast"
+import { Globe, Mic, StopCircle, AlertCircle, Loader2, Settings } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 
 const Page = () => {
   const { toast } = useToast();
@@ -25,6 +35,11 @@ const Page = () => {
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [isMsTranslating, setIsMsTranslating] = useState<boolean>(false);
   const [isGptTranslating, setIsGptTranslating] = useState<boolean>(false);
+  const [translationContext, setTranslationContext] = useState<string>(
+    `The speaker is Jayson, from Insights and Data of Capgemini. You can shorten that to I&D Japan. Keep the use of words under a business scenario.
+For translation style: Always keep the flow of translation that sounds natural like a native speaker.`
+  );
+  const [tempContext, setTempContext] = useState<string>("");
 
   // Language mapping for better display
   const languages = {
@@ -136,6 +151,7 @@ const Page = () => {
           text: lastTenLines,
           source: sourceLanguage,
           target: targetLanguage,
+          context: translationContext, // Include the context
         }),
       });
       
@@ -321,6 +337,51 @@ const Page = () => {
           <h1 className="text-2xl font-bold">Live Translation</h1>
         </div>
         <div className="flex items-center space-x-2">
+          {/* Add this Dialog component */}
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="icon" aria-label="Settings">
+                <Settings className="h-4 w-4" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[525px]">
+              <DialogHeader>
+                <DialogTitle>Translation Settings</DialogTitle>
+                <DialogDescription>
+                  Customize how the GPT translation service interprets your content.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="py-4">
+                <label htmlFor="context" className="text-sm font-medium mb-2 block">
+                  Translation Context
+                </label>
+                <Textarea
+                  id="context"
+                  rows={5}
+                  placeholder="Provide context for the translation"
+                  className="w-full"
+                  value={tempContext || translationContext}
+                  onChange={(e) => setTempContext(e.target.value)}
+                />
+                <p className="text-sm text-muted-foreground mt-2">
+                  Example: "The speaker is a marketing professional. Maintain formal language for a business presentation."
+                </p>
+              </div>
+              <DialogFooter>
+                <Button
+                  onClick={() => {
+                    if (tempContext) {
+                      setTranslationContext(tempContext);
+                      setTempContext("");
+                    }
+                  }}
+                >
+                  Save Changes
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
           {isRecording ? (
             <Button 
               onClick={stopMicrophone} 
