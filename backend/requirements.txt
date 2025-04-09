@@ -1,0 +1,7 @@
+fastapi[standard]
+uvicorn
+websockets
+azure-cognitiveservices-speech 
+python-dotenv 
+asyncio
+aiohttp
